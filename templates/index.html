@@ -1,0 +1,446 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FBI</title>
+    <!-- Include Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="{{url_for('static',filename='dist/output.css')}}">
+    <style>
+        /* Give the map a height */
+        #map { width: 100%; height: 550px; z-index: 0;}
+    </style>
+</head>
+<body>
+    <nav class="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
+        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+            <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
+                <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">FBI</span>
+            </a>
+            <div class="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
+                 <!-- Modal toggle -->
+                <button data-modal-target="authentication-modal" data-modal-toggle="authentication-modal" class="flex text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-2 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4.243a1 1 0 1 0-2 0V11H7.757a1 1 0 1 0 0 2H11v3.243a1 1 0 1 0 2 0V13h3.243a1 1 0 1 0 0-2H13V7.757Z" clip-rule="evenodd"/>
+                </svg>
+                Add Node
+                </button>
+                <button data-collapse-toggle="navbar-sticky" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-sticky" aria-expanded="false">
+                    <span class="sr-only">Open main menu</span>
+                    <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
+                <ul class="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+                    <li>
+                        <span id="status" class="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3"><span class="block w-2.5 h-2.5 bg-green-700 rounded-full me-1.5 shrink-0"></span></span>
+                        <span class="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3"><span class="block w-2.5 h-2.5 bg-red-700 rounded-full me-1.5 shrink-0"></span></span>
+                    </li>
+                    <li>
+                        <button data-modal-target="static-modal" data-modal-toggle="static-modal" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
+                        Alert Notification
+                        </button>
+                    </li>
+                    <li>
+                        <button data-modal-target="timeline-modal" data-modal-toggle="timeline-modal" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">View Nodes</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div id="timeline-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-md max-h-full">
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
+                <!-- Modal header -->
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        View Node List
+                    </h3>
+                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm h-8 w-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="timeline-modal">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                        </svg>
+                        <span class="sr-only">View Node List</span>
+                    </button>
+                </div>
+                <!-- Modal body -->
+                <div class="p-4 md:p-5 text-white">
+                    <ul id="node-list">
+
+                    </ul>
+                </div>
+            </div>
+    </div>
+</div> 
+
+
+    <!-- Main modal -->
+    <div id="static-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-2xl max-h-full">
+            <!-- Modal content -->
+            <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
+                <!-- Modal header -->
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                        Alert Notification
+                    </h3>
+                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="static-modal">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                </div>
+                <!-- Modal body -->
+                <div class="events-container" class="p-4 md:p-5 space-y-4">
+                    <ul id="not-body" class="w-28 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <button data-modal-target="popup-modal" data-modal-toggle="popup-modal" class="hidden text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
+    Toggle modal
+    </button>
+
+    <div id="popup-modal" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-md max-h-full">
+            <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
+                <button id="close-modal" type="button" class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="popup-modal">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+                <div class="p-4 md:p-5 text-center">
+                        <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                        </svg>
+                    
+                    <h3 id="message" class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Intrusion detected at Node 1 </h3>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="map" class="h-screen overflow-y-hidden"></div>
+
+    <!-- Main modal -->
+    <div id="authentication-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-md max-h-full">
+            <!-- Modal content -->
+            <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
+                <!-- Modal header -->
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                        Add Node
+                    </h3>
+                    <button type="button" class="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="authentication-modal">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                </div>
+                <!-- Modal body -->
+                <div class="p-4 md:p-5">
+                    <form id="node-form" class="space-y-6">
+                        <h5 class="text-xl font-medium text-gray-900 dark:text-white">Create a New Node</h5>
+                        <div>
+                            <label for="location" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Location</label>
+                            <input type="text" name="location" id="location" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
+                        </div>
+                        <div>
+                            <label for="latitude" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Latitude</label>
+                            <input type="number" name="latitude" id="latitude" step="any" min="0" max="100" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
+                        </div>
+                        <div>
+                            <label for="longitude" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Longitude</label>
+                            <input type="number" name="longitude" id="longitude" step="any" min="0" max="100" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
+                        </div>
+                        <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div> 
+    <!-- The Success Modal -->
+    <div id="success-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-md max-h-full">
+            <!-- Modal content -->
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <!-- Modal header -->
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                        Success!
+                    </h3>
+                    <button type="button" class="close-success end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="success-modal">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                </div>
+                <!-- Modal body -->
+                <div class="p-4 md:p-5 text-center">
+                    <svg class="mx-auto mb-4 text-green-500 w-12 h-12 dark:text-green-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 id="modal-message" class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Node added successfully!</h3>
+                    <button data-modal-hide="success-modal" type="button" class="close-success text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center">
+                        Continue
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+     <!-- <div id="events-container"> -->
+        <!-- Event data will be loaded here -->
+        <!-- Loading events... -->
+    <!-- </div> -->
+
+
+    <section class="fixed w-full z-50 bottom-0">
+        
+    </section>
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.4.1/flowbite.min.js"></script> -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <!-- Include Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        
+        var closeSuccess = document.querySelectorAll('.close-success');
+        var successModal = document.getElementById('success-modal');
+    
+        // Initialize the map and set its view to a geographical center and zoom level
+        var map = L.map('map').setView([9.531420920317997, 6.451815313553267], 17);
+
+        // Add an OpenStreetMap tile layer to the map
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Add an initial marker to a prominent
+        var marker = L.marker([9.531420920317997, 6.451815313553267]).addTo(map);
+        marker.bindPopup("<b>Sict Building</b>").openPopup();
+
+        
+        const ul = document.getElementById('node-list');
+
+        const li = document.createElement('li');
+        li.className = "w-full px-4 py-2 border-b border-gray-200 rounded-t-lg dark:border-gray-600";
+        li.innerHTML = `Sict Building`;
+        ul.appendChild(li);
+
+        function fetchMap(){
+            fetch('/api/data')
+                .then(response => response.json())
+                .then(data => {
+                    
+                    const drawer = document.getElementById('drawer-bottom-example');
+                    data.forEach(item => {
+                        var marker = L.marker([item.lat, item.lon]).addTo(map);
+                        marker.bindPopup(item.name);
+                        
+
+
+                        // if (list.length === 0) {
+                        //     ul.innerHTML = '<p>No events found.</p>';
+                        //     return;
+                        // }
+                        // alert("drawer function");
+
+                        // data.forEach(data => {
+                            const li = document.createElement('li');
+                            li.className = "w-full px-4 py-2 border-b border-gray-200 rounded-t-lg dark:border-gray-600";
+                            li.innerHTML = `${item.name} `;
+                            ul.appendChild(li);
+                            // ID: ${event.id}, Updated: ${new Date(event.timeupdated).toLocaleString()}
+                        // });
+
+                    });
+
+                    
+                    ul.appendChild(li);
+            });
+        }
+        fetchMap();
+
+        closeSuccess.forEach(closeSuccess => {
+            closeSuccess.addEventListener('click', function() {
+                successModal.style.display = "none";
+                fetchMap();
+            }); 
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
+    <script type="text/javascript">
+        // Connect to the Socket.IO server
+        var socket = io();
+        var statusDisplay = document.getElementById('status-display');
+        var timerMessage = document.getElementById('timer-message');
+        var popupModal = document.getElementById('popup-modal');
+        var message = document.getElementById('message');
+        var closeButton = document.getElementById('close-modal');
+
+        closeButton.addEventListener('click', function(){
+            popupModal.style.display = 'none';
+        });
+
+        socket.on('connect', function() {
+            console.log('Connected to SocketIO server');
+        });
+
+        // Listen for the 'new_record' event from the server
+        socket.on('new_record', function(data) {
+            console.log("New record received:", data);
+            
+            message.textContent = 'Intrusion Detected at Node 1';
+            message.style.color = 'red';
+            // Add the new item to the record list
+            // document.getElementById('record-list').appendChild(li);
+            popupModal.style.display = 'flex';
+        });
+
+         // Event listener for when the row is updated
+        socket.on('row_updated', function(data) {
+            console.log('Row updated event received:', data);
+            statusDisplay.textContent = data.status;
+            popupModal.style.display = 'flex';
+            message.textContent = 'Node 1 is back on';
+            message.style.color = 'green';
+        });
+
+        // Event listener for when the timer expires
+        socket.on('timeout_event', function(data) {
+            console.log('Timeout event received:', data);
+            popupModal.style.display = 'flex';
+            message.textContent = 'Node 1 is down in power';
+            message.style.color = 'red';
+        });
+
+        
+    </script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            var nodeForm = document.getElementById('node-form');
+            var successModal = document.getElementById('success-modal');
+            var modalMessage = document.getElementById('modal-message');
+
+            // alert(nodeForm);
+
+            // if (nodeForm) {
+            // alert('nodeform');
+            
+            
+            nodeForm.addEventListener('submit', (event) => {
+                
+                event.preventDefault(); // Prevent the default form submission
+
+                var formData = new FormData(nodeForm);
+                var data = {};
+                formData.forEach((value, key) => {
+                    data[key] = value;
+                });
+
+                fetch('/submit-node', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.message); });
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    if (result.success) {
+                        successModal.style.display = "block";
+                        nodeForm.reset(); // Reset the form fields
+                        // nodeForm.innerText = "done";
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred: ' + error.message);
+                });
+            });
+
+            nodeForm.requestSubmit();
+        // }
+            function fetchStatus(){
+                fetch('/statustable')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(stat => {
+                    var status = document.getElementById('status');
+                    status.innerHTML = `Status: ${stat.status}`;
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                    document.getElementById('events-container').innerHTML = '<p style="color: red;">Failed to load status.</p>';
+                });
+            }
+
+            setInterval(fetchStatus, 5000);
+            fetchStatus();
+
+            fetch('/api/events') // Make sure this URL matches your Flask route
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(events => {
+                    const container = document.getElementById('events-container');
+
+                    if (events.length === 0) {
+                        container.innerHTML = '<p>No events found.</p>';
+                        return;
+                    }
+
+                    const ul = document.getElementById('not-body');
+                    events.forEach(event => {
+                        const li = document.createElement('li');
+                        li.className = "w-full px-4 py-2 border-b border-gray-200 rounded-t-lg dark:border-gray-600";
+                        li.innerHTML = `${event.eventtype} detected at Node 1 <span style="font-size: 12px; float: right;">Time: ${new Date(event.timecreated).toLocaleString()} </span>`;
+                        ul.appendChild(li);
+                        // ID: ${event.id}, Updated: ${new Date(event.timeupdated).toLocaleString()}
+                    });
+                    container.innerHTML = ul;
+                    // container.appendChild(ul);
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                    document.getElementById('events-container').innerHTML = '<p style="color: red;">Failed to load events.</p>';
+                });
+        });
+    </script>
+</body>
+</html>
