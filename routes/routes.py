@@ -83,6 +83,29 @@ def clear_table():
     
 @main_bp.route('/api/events', methods=['GET'])
 def get_events():
-    events = Event.query.all()
+    # events = Event.query.all()
+    events = Event.query.order_by(Event.timecreated.desc()).all()
     events_data = [event.to_dict() for event in events]
     return jsonify(events_data)
+
+@main_bp.route('/admin/clear-database', methods=['POST'])
+# @login_required # Ensure only logged-in users can access this (improve with role checking if necessary)
+def clear_database():
+    # Optional: Add extra security checks (e.g., check if user has admin role)
+    # if not current_user.is_admin:
+    #     abort(403) 
+
+    try:
+        # Drop all tables defined in your models
+        db.drop_all()
+        # Recreate the tables (optional, but useful to start fresh)
+        db.create_all()
+        
+        # flash("All database tables have been dropped and recreated.", "success")
+        # return redirect(url_for('main.index')) # Redirect to a safe page
+        return "All database tables have been dropped and recreated."
+        
+    except Exception as e:
+        # flash(f"An error occurred: {str(e)}", "danger")
+        # return redirect(url_for('main.index'))
+        return "An error occured."

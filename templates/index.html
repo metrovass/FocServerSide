@@ -215,8 +215,6 @@
     
 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script> -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.4.1/flowbite.min.js"></script> -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
     <!-- Include Leaflet JavaScript -->
@@ -256,21 +254,12 @@
                     data.forEach(item => {
                         var marker = L.marker([item.lat, item.lon]).addTo(map);
                         marker.bindPopup(item.name);
-                        
-
-
-                        // if (list.length === 0) {
-                        //     ul.innerHTML = '<p>No events found.</p>';
-                        //     return;
-                        // }
-                        // alert("drawer function");
 
                         // data.forEach(data => {
                             const li = document.createElement('li');
                             li.className = "w-full px-4 py-2 border-b border-gray-200 rounded-t-lg dark:border-gray-600";
                             li.innerHTML = `${item.name} `;
                             ul.appendChild(li);
-                            // ID: ${event.id}, Updated: ${new Date(event.timeupdated).toLocaleString()}
                         // });
 
                     });
@@ -313,7 +302,6 @@
             message.textContent = 'Intrusion Detected at Node 1';
             message.style.color = 'red';
             // Add the new item to the record list
-            // document.getElementById('record-list').appendChild(li);
             popupModal.style.display = 'flex';
         });
 
@@ -342,12 +330,6 @@
             var nodeForm = document.getElementById('node-form');
             var successModal = document.getElementById('success-modal');
             var modalMessage = document.getElementById('modal-message');
-
-            // alert(nodeForm);
-
-            // if (nodeForm) {
-            // alert('nodeform');
-            
             
             nodeForm.addEventListener('submit', (event) => {
                 
@@ -376,7 +358,6 @@
                     if (result.success) {
                         successModal.style.display = "block";
                         nodeForm.reset(); // Reset the form fields
-                        // nodeForm.innerText = "done";
                     } else {
                         alert('Error: ' + result.message);
                     }
@@ -388,7 +369,6 @@
             });
 
             nodeForm.requestSubmit();
-        // }
             function fetchStatus(){
                 fetch('/statustable')
                 .then(response => {
@@ -431,10 +411,8 @@
                         li.className = "w-full px-4 py-2 border-b border-gray-200 rounded-t-lg dark:border-gray-600";
                         li.innerHTML = `${event.eventtype} detected at Node 1 <span style="font-size: 12px; float: right;">Time: ${new Date(event.timecreated).toLocaleString()} </span>`;
                         ul.appendChild(li);
-                        // ID: ${event.id}, Updated: ${new Date(event.timeupdated).toLocaleString()}
                     });
                     container.innerHTML = ul;
-                    // container.appendChild(ul);
                 })
                 .catch(error => {
                     console.error('There was a problem with the fetch operation:', error);
