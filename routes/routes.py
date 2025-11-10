@@ -84,7 +84,7 @@ def clear_table():
 @main_bp.route('/api/events', methods=['GET'])
 def get_events():
     # events = Event.query.all()
-    events = Event.query.order_by(Event.timecreated.asc()).all()
+    events = Event.query.order_by(Event.timecreated.desc()).all()
     events_data = [event.to_dict() for event in events]
     return jsonify(events_data)
 
