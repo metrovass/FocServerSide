@@ -88,7 +88,7 @@ def get_events():
     events_data = [event.to_dict() for event in events]
     return jsonify(events_data)
 
-@main_bp.route('/admin/clear-database', methods=['POST'])
+@main_bp.route('/admin/clear-database', methods=['GET'])
 # @login_required # Ensure only logged-in users can access this (improve with role checking if necessary)
 def clear_database():
     # Optional: Add extra security checks (e.g., check if user has admin role)
